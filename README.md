@@ -1,17 +1,23 @@
 # Check for New Jersey MVC licence renewal appointments.
 
-I need to snag an in person renewal appointment before my licence expires.
+I need to snag an in person driving licence renewal appointment before my licence expires.
 
 I wrote this, rather than spend all week [reloading the appointment page](https://telegov.njportal.com/njmvc/AppointmentWizard/11), in the hope that an appointment opens up.
 
 Maybe someone else will find this useful.
+
+## Installation
+
+```bash
+% go install github.com/alexhowarth/go-njmvc-appointment@latest
+```
 
 ## Usage
 
 For all locations:
 
 ```bash
-% go run njmvc.go
+% $GOPATH/bin/go-njmvc-appointment
 Vineland          2021-07-15 10:00:00 -0400 EDT
 Lawrenceville     2021-07-15 11:20:00 -0400 EDT
 Salem             2021-07-20 08:40:00 -0400 EDT
@@ -40,7 +46,7 @@ Newark            2021-08-27 13:40:00 -0400 EDT
 Specify a comma-separated list of locations:
 
 ```bash
-go run njmvc.go --location Bayonne,Newark,Rahway,Edison,"South Plainfield","North Bergen"
+$GOPATH/bin/go-njmvc-appointment --location Bayonne,Newark,Rahway,Edison,"South Plainfield","North Bergen"
 South Plainfield  2021-08-11 13:40:00 -0400 EDT
 Rahway            2021-08-13 10:40:00 -0400 EDT
 Edison            2021-08-18 10:40:00 -0400 EDT
