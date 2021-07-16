@@ -1,4 +1,5 @@
 # Check for New Jersey MVC licence renewal appointments.
+[![Go Reference](https://pkg.go.dev/badge/github.com/alexhowarth/go-njmvc-appointment.svg)](https://pkg.go.dev/github.com/alexhowarth/go-njmvc-appointment)
 
 I need to snag an in person driving licence renewal appointment before my licence expires.
 

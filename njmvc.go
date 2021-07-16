@@ -197,19 +197,20 @@ func main() {
 		for _, v := range timeData {
 			ld := locationData[v.LocationID]
 			for _, location := range locationFlag {
-				// if the location exists, print
+				// if the location exists, write
 				if ld.City == location {
 					sb.WriteString(prettyPrint(ld.City, v.NextAvailable))
 				}
 			}
 		}
 	} else {
-		// print all data
+		// write all data
 		for _, v := range timeData {
 			sb.WriteString(prettyPrint(locationData[v.LocationID].City, v.NextAvailable))
 		}
 	}
 
+	// slack or stdout
 	if slackChannel != "" && slackToken != "" {
 		postSlackMessage(sb.String())
 	} else {
