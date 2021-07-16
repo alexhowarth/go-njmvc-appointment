@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/slack-go/slack"
 )
 
 const (
@@ -148,9 +149,13 @@ func (i *location) Set(value string) error {
 	return nil
 }
 
+var slackChannel, slackToken string
+
 func main() {
 
 	flag.Var(&locationFlag, "location", "comma-separated list limits results to one or more locations")
+	flag.StringVar(&slackChannel, "slack-channel", "", "slack channel id to post to")
+	flag.StringVar(&slackToken, "slack-token", "", "slack oauth token for your bot")
 	flag.Parse()
 
 	c := colly.NewCollector()
@@ -185,6 +190,8 @@ func main() {
 		log.Fatal("Unable to scrape data")
 	}
 
+	var sb strings.Builder
+
 	if len(locationFlag) > 0 {
 		// iterate over available times
 		for _, v := range timeData {
@@ -192,19 +199,47 @@ func main() {
 			for _, location := range locationFlag {
 				// if the location exists, print
 				if ld.City == location {
-					prettyPrint(ld.City, v.NextAvailable)
+					sb.WriteString(prettyPrint(ld.City, v.NextAvailable))
 				}
 			}
 		}
 	} else {
 		// print all data
 		for _, v := range timeData {
-			prettyPrint(locationData[v.LocationID].City, v.NextAvailable)
+			sb.WriteString(prettyPrint(locationData[v.LocationID].City, v.NextAvailable))
 		}
 	}
 
+	if slackChannel != "" && slackToken != "" {
+		postSlackMessage(sb.String())
+	} else {
+		fmt.Print(sb.String())
+	}
 }
 
-func prettyPrint(city string, date time.Time) {
-	fmt.Printf("%-17v %v\n", city, date)
+func prettyPrint(city string, date time.Time) string {
+	return fmt.Sprintf("%-17v %v\n", city, date)
+}
+
+func postSlackMessage(txt string) {
+	OAUTH_TOKEN := slackToken
+	CHANNEL_ID := slackChannel
+
+	api := slack.New(OAUTH_TOKEN)
+	attachment := slack.Attachment{
+		Pretext: "Available appointments",
+		Text:    txt,
+	}
+
+	channelId, timestamp, err := api.PostMessage(
+		CHANNEL_ID,
+		slack.MsgOptionAttachments(attachment),
+		slack.MsgOptionAsUser(true),
+	)
+
+	if err != nil {
+		log.Fatalf("%s\n", err)
+	}
+
+	fmt.Printf("Message successfully sent to Channel %s at %s\n", channelId, timestamp)
 }
