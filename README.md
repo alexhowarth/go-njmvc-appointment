@@ -14,6 +14,17 @@ Maybe someone else will find this useful.
 
 ## Usage
 
+```bash
+% $GOPATH/bin/go-njmvc-appointment --help
+Usage of go-njmvc-appointment:
+  -location value
+        comma-separated list limits results to one or more locations
+  -slack-channel string
+        slack channel id to post to
+  -slack-token string
+        slack oauth token for your bot
+```
+
 For all locations:
 
 ```bash
@@ -53,4 +64,10 @@ Edison            2021-08-18 10:40:00 -0400 EDT
 North Bergen      2021-08-18 11:20:00 -0400 EDT
 Bayonne           2021-08-25 12:40:00 -0400 EDT
 Newark            2021-08-30 08:40:00 -0400 EDT
+```
+
+Post the appointments to a Slack channel bot:
+
+```bash
+$GOPATH/bin/go-njmvc-appointment --location Bayonne,Newark,Rahway,Edison,"South Plainfield","North Bergen" --slack-channel abc123 --slack-token def456
 ```
