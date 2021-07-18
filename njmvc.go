@@ -149,6 +149,7 @@ func (i *location) Set(value string) error {
 	return nil
 }
 
+var withinDays int
 var slackChannel, slackToken string
 
 func main() {
@@ -156,6 +157,7 @@ func main() {
 	flag.Var(&locationFlag, "location", "comma-separated list limits results to one or more locations")
 	flag.StringVar(&slackChannel, "slack-channel", "", "slack channel id to post to")
 	flag.StringVar(&slackToken, "slack-token", "", "slack oauth token for your bot")
+	flag.IntVar(&withinDays, "days", 0, "only list results within x days from now")
 	flag.Parse()
 
 	c := colly.NewCollector()
@@ -199,7 +201,13 @@ func main() {
 			for _, location := range locationFlag {
 				// if the location exists, write
 				if ld.City == location {
-					sb.WriteString(prettyPrint(ld.City, v.NextAvailable))
+					if withinDays > 0 {
+						if v.NextAvailable.Before(time.Now().AddDate(0, 0, withinDays)) {
+							sb.WriteString(prettyPrint(ld.City, v.NextAvailable))
+						}
+					} else {
+						sb.WriteString(prettyPrint(ld.City, v.NextAvailable))
+					}
 				}
 			}
 		}
@@ -223,17 +231,14 @@ func prettyPrint(city string, date time.Time) string {
 }
 
 func postSlackMessage(txt string) {
-	OAUTH_TOKEN := slackToken
-	CHANNEL_ID := slackChannel
-
-	api := slack.New(OAUTH_TOKEN)
+	api := slack.New(slackToken)
 	attachment := slack.Attachment{
-		Pretext: "Available appointments",
+		Pretext: "Available appointments:",
 		Text:    txt,
 	}
 
 	channelId, timestamp, err := api.PostMessage(
-		CHANNEL_ID,
+		slackChannel,
 		slack.MsgOptionAttachments(attachment),
 		slack.MsgOptionAsUser(true),
 	)
