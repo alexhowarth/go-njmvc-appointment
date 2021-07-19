@@ -18,6 +18,8 @@ Maybe someone else will find this useful.
 ```bash
 % $GOPATH/bin/go-njmvc-appointment --help
 Usage of go-njmvc-appointment:
+  -days int
+        only list results within x days from now
   -location value
         comma-separated list limits results to one or more locations
   -slack-channel string
@@ -71,4 +73,12 @@ Post the appointments to a Slack channel bot:
 
 ```bash
 $GOPATH/bin/go-njmvc-appointment --location Bayonne,Newark,Rahway,Edison,"South Plainfield","North Bergen" --slack-channel abc123 --slack-token def456
+```
+
+Limit the results to a certain number of days from time.NOW():
+
+```bash
+$GOPATH/bin/go-njmvc-appointment --location Bayonne,Newark,Rahway,Edison,"South Plainfield","North Bergen" --days 30
+South Plainfield  2021-08-16 09:40:00 -0400 EDT
+Rahway            2021-08-17 14:40:00 -0400 EDT
 ```
