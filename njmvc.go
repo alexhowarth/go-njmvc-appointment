@@ -157,6 +157,7 @@ func (i *location) Set(value string) error {
 	return nil
 }
 
+var quiet bool
 var withinDays int
 var slackChannel, slackToken string
 
@@ -166,6 +167,7 @@ func main() {
 	flag.StringVar(&slackChannel, "slack-channel", "", "slack channel id to post to")
 	flag.StringVar(&slackToken, "slack-token", "", "slack oauth token for your bot")
 	flag.IntVar(&withinDays, "days", 0, "only list results within x days from now")
+	flag.BoolVar(&quiet, "quiet", false, "no output if no results")
 	flag.Parse()
 
 	c := colly.NewCollector()
@@ -234,7 +236,9 @@ func main() {
 		if sb.Len() > 0 {
 			fmt.Print(sb.String())
 		} else {
-			fmt.Println("No available appointments.")
+			if !quiet {
+				fmt.Println("No available appointments.")
+			}
 		}
 	}
 
@@ -252,6 +256,9 @@ func postSlackMessage(txt string) {
 		preText = "Available appointments:"
 	} else {
 		preText = "No available appointments."
+		if quiet {
+			return
+		}
 	}
 
 	attachment := slack.Attachment{

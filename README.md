@@ -22,6 +22,8 @@ Usage of go-njmvc-appointment:
         only list results within x days from now
   -location value
         comma-separated list limits results to one or more locations
+  -quiet
+        no output if no results
   -slack-channel string
         slack channel id to post to
   -slack-token string
