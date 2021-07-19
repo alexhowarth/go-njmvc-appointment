@@ -104,7 +104,10 @@ func (tdc *TimeDataType) UnmarshalJSON(b []byte) (err error) {
 	for i, v := range tmp {
 		if nextAvailableRegex.MatchString(v.FirstOpenSlot) {
 			d := nextAvailableRegex.FindStringSubmatch(v.FirstOpenSlot)[1]
-			loc, _ := time.LoadLocation("America/New_York")
+			loc, err := time.LoadLocation("America/New_York")
+			if err != nil {
+				return err
+			}
 			t, err := time.ParseInLocation(dateTimeForm, d, loc)
 			if err != nil {
 				return err
