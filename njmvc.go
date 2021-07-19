@@ -1,3 +1,4 @@
+// Package main scrapes NJ MVC appointments and outputs to stdout or Slack
 package main
 
 import (
@@ -25,12 +26,14 @@ var (
 	nextAvailableRegex = regexp.MustCompile(`Next Available: (.*)$`)
 )
 
+// TimeData contains the available appointments
 type TimeData struct {
 	LocationID    int    `json:"LocationId"`
 	FirstOpenSlot string `json:"FirstOpenSlot"`
 	NextAvailable time.Time
 }
 
+// LocationData contains the location information for TimeData.LocationID
 type LocationData struct {
 	Name            string      `json:"Name"`
 	Street1         string      `json:"Street1"`
@@ -91,6 +94,7 @@ type LocationData struct {
 
 type TimeDataType []TimeData
 
+// UnmarshalJSON TimeData parsing the data and setting NextAvailable as time.Time on the struct
 func (tdc *TimeDataType) UnmarshalJSON(b []byte) (err error) {
 	var tmp []TimeData
 	if err := json.Unmarshal(b, &tmp); err != nil {
@@ -120,6 +124,7 @@ func (tdc *TimeDataType) UnmarshalJSON(b []byte) (err error) {
 
 type LocationDataType map[int]LocationData
 
+// UnmarshalJSON LocationData into a map for access by LocationID
 func (md LocationDataType) UnmarshalJSON(b []byte) (err error) {
 	var tmp []LocationData
 	if err := json.Unmarshal(b, &tmp); err != nil {
@@ -201,6 +206,7 @@ func main() {
 			for _, location := range locationFlag {
 				// if the location exists, write
 				if ld.City == location {
+					// if limited by x days
 					if withinDays > 0 {
 						if v.NextAvailable.Before(time.Now().AddDate(0, 0, withinDays)) {
 							sb.WriteString(prettyPrint(ld.City, v.NextAvailable))
@@ -222,8 +228,13 @@ func main() {
 	if slackChannel != "" && slackToken != "" {
 		postSlackMessage(sb.String())
 	} else {
-		fmt.Print(sb.String())
+		if sb.Len() > 0 {
+			fmt.Print(sb.String())
+		} else {
+			fmt.Println("No available appointments.")
+		}
 	}
+
 }
 
 func prettyPrint(city string, date time.Time) string {
@@ -232,8 +243,16 @@ func prettyPrint(city string, date time.Time) string {
 
 func postSlackMessage(txt string) {
 	api := slack.New(slackToken)
+
+	var preText string
+	if len(txt) > 0 {
+		preText = "Available appointments:"
+	} else {
+		preText = "No available appointments."
+	}
+
 	attachment := slack.Attachment{
-		Pretext: "Available appointments:",
+		Pretext: preText,
 		Text:    txt,
 	}
 
