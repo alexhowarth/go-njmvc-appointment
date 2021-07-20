@@ -5,7 +5,7 @@ I need to snag an in person driving licence renewal appointment before my licenc
 
 I wrote this, rather than spend all week [reloading the appointment page](https://telegov.njportal.com/njmvc/AppointmentWizard/11), in the hope that an appointment opens up.
 
-Maybe someone else will find this useful.
+Maybe someone else will find this useful (see [releases](https://github.com/alexhowarth/go-njmvc-appointment/releases) for prebuilt binaries for common platforms).
 
 ## Installation
 
