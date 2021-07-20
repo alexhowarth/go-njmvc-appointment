@@ -237,7 +237,7 @@ func main() {
 			fmt.Print(sb.String())
 		} else {
 			if !quiet {
-				fmt.Println("No available appointments.")
+				fmt.Println("No appointments available.")
 			}
 		}
 	}
