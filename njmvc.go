@@ -11,13 +11,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gen2brain/beeep"
 	"github.com/gocolly/colly/v2"
 	"github.com/slack-go/slack"
 )
 
 const (
 	dateTimeForm = "01/02/2006 15:04 PM"
-	renewalURL   = "https://telegov.njportal.com/njmvc/AppointmentWizard/11"
+	realIdURL    = "https://telegov.njportal.com/njmvc/AppointmentWizard/12"
 )
 
 var (
@@ -100,7 +101,6 @@ func (tdc *TimeDataType) UnmarshalJSON(b []byte) (err error) {
 	if err := json.Unmarshal(b, &tmp); err != nil {
 		return err
 	}
-
 	for i, v := range tmp {
 		if nextAvailableRegex.MatchString(v.FirstOpenSlot) {
 			d := nextAvailableRegex.FindStringSubmatch(v.FirstOpenSlot)[1]
@@ -119,9 +119,14 @@ func (tdc *TimeDataType) UnmarshalJSON(b []byte) (err error) {
 	sort.SliceStable(tmp, func(i, j int) bool {
 		return tmp[i].NextAvailable.Before(tmp[j].NextAvailable)
 	})
-
-	*tdc = tmp
-
+	var filteredTmp []TimeData
+	for _, v := range tmp {
+		if v.FirstOpenSlot != "No Appointments Available" {
+			filteredTmp = append(filteredTmp, v)
+		}
+	}
+	//=> ["three", "eleven"]
+	*tdc = filteredTmp
 	return nil
 }
 
@@ -195,9 +200,8 @@ func main() {
 			}
 		}
 	})
-
-	c.Visit(renewalURL)
-
+	c.Visit(realIdURL)
+	fmt.Println("Visiting Real ID URL: " + realIdURL)
 	if len(timeData) == 0 || len(locationData) == 0 {
 		log.Fatal("Unable to scrape data")
 	}
@@ -235,9 +239,10 @@ func main() {
 	} else {
 		if sb.Len() > 0 {
 			fmt.Print(sb.String())
+			beeep.Beep(beeep.DefaultFreq, beeep.DefaultDuration)
 		} else {
 			if !quiet {
-				fmt.Println("No appointments available.")
+				fmt.Println("No appointments available for: " + locationFlag.String())
 			}
 		}
 	}

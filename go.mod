@@ -3,6 +3,7 @@ module github.com/alexhowarth/go-njmvc-appointment
 go 1.16
 
 require (
+	github.com/gen2brain/beeep v0.0.0-20220909211152-5a9ec94374f6
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/slack-go/slack v0.9.2
